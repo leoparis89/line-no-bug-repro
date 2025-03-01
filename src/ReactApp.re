@@ -29,3 +29,33 @@ let () =
     let root = ReactDOM.Client.createRoot(element);
     ReactDOM.Client.render(root, <App />);
   };
+
+module OtherModule = {
+  type t = {
+    name: string,
+    age: int,
+  };
+};
+
+type typeInCurrentModule = {
+  name: string,
+  age: int,
+};
+
+// Following error is reported at line 1
+//
+// File "src/ReactApp.re", line 1:
+// Error (warning 9 [missing-record-field-pattern]): the following labels are not bound in this record pattern:
+// age
+let bugRepro = (arg: OtherModule.t) => {
+  let OtherModule.{name} = arg;
+  let _ = name;
+  ();
+}
+
+// Line no bug doesn't happen if type is defined in current module
+let noBugRepro = (arg: typeInCurrentModule) => {
+  let {name} = arg;
+  let _ = name;
+  ();
+}
